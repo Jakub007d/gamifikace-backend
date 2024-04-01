@@ -1,0 +1,29 @@
+ <div
+        className="d-flex border border-secondary rounded card-body justify-content-center"
+        style={{ height: "200px", margin: "20px" }}
+      >
+        <h1>{questions[actual_question]?.text}</h1>
+      </div>
+      <div className="card-body">
+        <h5 className="card-title">{questions[actual_question]?.name}</h5>
+        <p className="card-text">{questions[actual_question]?.text}</p>
+      </div>
+      <div className="card-body">
+        <div className="">
+          {answers.map((answer: Answer, index) => (
+            <button
+              className={isSelected(answer)}
+              style={{ width: answer_number, margin: "1px" }}
+              key={answer.id}
+              onClick={() => {
+                setSelectedAnswer(answer);
+                setTimeout(() => {
+                  nextQuestion(actual_question);
+                }, 450);
+              }}
+            >
+              {answer.text}
+            </button>
+          ))}
+        </div>
+      </div>
