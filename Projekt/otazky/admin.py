@@ -35,7 +35,8 @@ admin.site.register(Comment, CommentAdmin)
 
 
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    filter_horizontal = ('visited_by',)
+    list_display = ('name','full_name')
     def __str__(self):
         return self.name
 

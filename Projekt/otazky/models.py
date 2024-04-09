@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 # Create your models here.
 class Course(models.Model):
     name = models.CharField(max_length=255, unique=True, default="")
+    full_name = models.CharField(max_length=255, default="")
+    visited_by = models.ManyToManyField(User)
     def __str__(self):
         return self.name
 
