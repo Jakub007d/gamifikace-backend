@@ -5,7 +5,9 @@ from .models import *
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
-        fields = ['id', 'name', 'text', 'approved', 'visible', 'created_by', 'likes', 'created_at', 'okruh','is_text_question']
+        fields = ['id', 'name', 'text', 'approved', 'visible', 
+                  'created_by', 'likes', 'created_at', 'okruh',
+                  'is_text_question']
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-# Create your models here.
+#V tomto súbore sa nachádza implementácia jednotlivých entít modelu.
 class Course(models.Model):
     name = models.CharField(max_length=255, unique=True, default="")
     full_name = models.CharField(max_length=255, default="")

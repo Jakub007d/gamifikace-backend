@@ -1,33 +1,3 @@
-'''from django.shortcuts import render
-from django.http import HttpResponse
-from datetime import datetime
-from django.contrib.auth.decorators import login_required
-from django.template import loader
-from rest_framework import viewsets, status
-from rest_framework.views import APIView
-from sqlparse.filters import output
-from rest_framework import generics
-
-from .models import *
-from .serializers import *
-from rest_framework.response import Response
-
-
-class OtazkaView(generics.ListAPIView):
-    def get(self, request):
-        outputt = [{"id": output.id, "name": output.name, "text": output.text, "approved": output.approved,
-                    "visible": output.visible, "created_by": output.created_by.username, "likes": output.likes,
-                    "created_at": output.created_at, "okruh": output.okruh.name} for output in Question.objects.all()]
-        return Response(outputt)
-
-    def post(self, request):
-        serializer = QuestionSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-    queryset=Question.objects.all()
-    serializer_class = QuestionSerializer
-'''
 import json
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -42,14 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import AccessToken,RefreshToken
 from django.core.serializers.json import DjangoJSONEncoder
 from rest_framework import status
-class OtazkaView(generics.ListCreateAPIView):
-    queryset = Question.objects.all()
-    serializer_class = QuestionSerializer
-
-class CommentView(generics.ListCreateAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-
+#Vráti komentáre pre otázku
 class CommentsForQuestionView(generics.ListCreateAPIView):
     Model = Comment
     serializer_class = CommentSerializer
@@ -60,7 +23,7 @@ class CommentsForQuestionView(generics.ListCreateAPIView):
         if questionID:
             queryset = queryset.filter(question=questionID)
         return queryset
-    
+#Vráti všetky kurzy   
 class CourseView(generics.ListCreateAPIView):
     Model = Course
     serializer_class = CourseSerializer
@@ -69,6 +32,7 @@ class CourseView(generics.ListCreateAPIView):
         queryset= Course.objects.all()
         return queryset
 
+#Vráti rebríček zoradený zostupne podla bodov.
 class ScoreView(generics.ListCreateAPIView):
     Model = Score
     serializer_class = ScoreSerializer
@@ -78,7 +42,8 @@ class ScoreView(generics.ListCreateAPIView):
         queryset = Score.objects.filter(course = courseID)
         queryset = queryset.order_by('-points')
         return queryset
-    
+
+#Vráti odpovede pre danú otázku
 class AnswersForQuestion(generics.ListCreateAPIView):
     Model = Answer
     serializer_class = AnswerSerializer
@@ -90,6 +55,7 @@ class AnswersForQuestion(generics.ListCreateAPIView):
             queryset = queryset.filter(question=questionID)
         return queryset
 
+#Vráti okruhy pre kurz
 class OkruhsForCourse(generics.ListCreateAPIView):
     Model = Okruh
     serializer_class = OkruhSerializer
@@ -101,6 +67,7 @@ class OkruhsForCourse(generics.ListCreateAPIView):
             queryset = queryset.filter(course=courseID)
         return queryset
 
+#Nájde a vráti okruh so špecifikovaným id
 class OkruhByID(generics.ListCreateAPIView):
     Model = Okruh
     serializer_class = OkruhSerializer
@@ -112,6 +79,7 @@ class OkruhByID(generics.ListCreateAPIView):
             queryset = queryset.filter(id=okruhID)
         return queryset
 
+#Slúži pre získanie otázky za pomoci jej id
 class QuestionByID(generics.ListCreateAPIView):
     Model = Question
     serializer_class = QuestionSerializer
@@ -123,6 +91,7 @@ class QuestionByID(generics.ListCreateAPIView):
             queryset = queryset.filter(id=question_id)
         return queryset
 
+#Slúži pre získanie otázok pre okruh
 class QuestionForOkruh(generics.ListCreateAPIView):
     Model = Question
     serializer_class = QuestionSerializer
@@ -134,6 +103,7 @@ class QuestionForOkruh(generics.ListCreateAPIView):
             queryset = queryset.filter(okruh=okruhID)
         return queryset
 
+#Vráti otázky z výzvy
 class CallangeQuestions(generics.ListCreateAPIView):
     Model = Question
     serializer_class = QuestionSerializer
@@ -143,7 +113,6 @@ class CallangeQuestions(generics.ListCreateAPIView):
         challange_questions= ChalangeQuestion.objects.filter(courseID=self.request.query_params.get('courseID'))
         queryset= None
         for chalange_question in challange_questions:
-            print(chalange_question.id)
             if queryset is None :
                 queryset = Question.objects.filter(id = chalange_question.question.id)
                 print(queryset.values_list())
@@ -151,6 +120,7 @@ class CallangeQuestions(generics.ListCreateAPIView):
                 queryset = queryset | Question.objects.filter(id = chalange_question.question.id)
         return queryset
     
+#Pre access_token získa meno užívatela
 class Username(APIView):
     def post(self,request, format=None):
         
@@ -161,9 +131,9 @@ class Username(APIView):
         user_id=access_token_obj['user_id']
         
         user = User.objects.get(id=user_id)
-        print(user)
         return Response(str(user))
 
+#Pre access_token získa id užívatela
 class UsernameID(APIView):
     def post(self,request, format=None):
         
@@ -174,14 +144,15 @@ class UsernameID(APIView):
         user_id=access_token_obj['user_id']
         return Response(str(user_id))
 
+#Pridanie otázky do databáze
 class NewQuestion(APIView):
     def post(self,request, format=None):
         user = User.objects.filter(id=request.data["created_by"])
         okruh = Okruh.objects.filter(id=request.data["okruh"])
         newQuestion=Question.objects.create(name=request.data["name"],text=request.data["text"],approved=request.data["approved"],visible=request.data["visible"],created_by=user[0],is_text_question=request.data["is_text_question"],likes=0,okruh=okruh[0])
-        print(newQuestion.id)
         return Response(newQuestion.id)
 
+#Pridanie komentáru do databáze
 class NewComment(APIView):
     def post(self,request, format=None):
         user = User.objects.filter(id=request.data["user_id"])
@@ -190,6 +161,7 @@ class NewComment(APIView):
         comment = Comment.objects.create(text=text,created_by=user[0],question=question[0])
         return HttpResponse(200)
 
+#Pridanie nového skóre do databáze
 class ScoreEntry(APIView):
     def post(self,request, format=None):
         user = User.objects.filter(id=request.data["user_id"])
@@ -203,13 +175,16 @@ class ScoreEntry(APIView):
                 score.points=points
                 score.save()
         return Response(status=200)
+
+#Pridanie novej odpovedi do databáze
 class NewAnswers(APIView):
     def post(self,request, format=None):
-        question=Question.objects.filter(id=request.data[0]["question"])#MOZNO BUG TODO
+        question=Question.objects.filter(id=request.data[0]["question"])
         for answer in request.data:
             new_answer = Answer.objects.create(text=answer["text"],answer_type=answer["answer_type"],question=question[0])
         return HttpResponse(200)
 
+#Získa objekt užívateľa a následne ho v odpovedi vráti
 class UserForID(generics.ListCreateAPIView):
     model = User
     serializer_class = UserSerializer
@@ -217,7 +192,7 @@ class UserForID(generics.ListCreateAPIView):
         user = User.objects.get(id=self.request.query_params.get('user_id'))
         return user
 
-    
+#Získa objekt užívateľa a následne ho v odpovedi vráti
 class UserForID(generics.ListCreateAPIView):
     Model = User
     serializer_class = UserSerializer
@@ -229,12 +204,14 @@ class UserForID(generics.ListCreateAPIView):
             queryset = queryset.filter(id=userID)
         return queryset
  
+#Domovská obrazovka
 class HomeView(APIView):
     permission_classes = (IsAuthenticated, )  
     def get(self, request):       
-        content = {'message': 'Welcome to the JWT Authentication page using React Js and Django!'}   
+        content = {'message': 'Stránka backendu aplikacie gamifikace.online'}   
         return Response(content)
 
+#Odhlásenie užívateľa
 class LogoutView(APIView):     
     permission_classes = (IsAuthenticated,)     
     def post(self, request):
@@ -246,3 +223,66 @@ class LogoutView(APIView):
             return Response(status=status.HTTP_205_RESET_CONTENT)          
         except Exception as e:               
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+#Pridá navštevovaný kurz k uživateľovi
+class AddUserToCourse(APIView):
+    def post(self,request, format=None):
+        queryset= Course.objects.all()
+        userID = request.data["userID"]
+        courseID = request.data["courseID"]
+        courses = queryset.filter(id=courseID)
+        found = False
+        for course in courses:
+            if courseID == str(course.id):
+                visited_by = course.visited_by
+                for user in visited_by.all():
+                    if userID == str(user.id):
+                        found = True
+                if found != True:
+                    querry_user = User.objects.all()
+                    visited_by.add(querry_user.filter(id=userID)[0])
+            found = False
+        return Response(status=200)
+    
+#Odstránuje kurz z navštevovaných kurzov
+class RemoveUserFomCourse(APIView):
+    def post(self,request, format=None):
+        queryset= Course.objects.all()
+        userID = request.data["userID"]
+        courseID = request.data["courseID"]
+        courses = queryset.filter(id=courseID)
+        found = False
+        for course in courses:
+            if courseID == str(course.id):
+                visited_by = course.visited_by
+                for user in visited_by.all():
+                    if userID == str(user.id):
+                        found = True
+                if found == True:
+                    querry_user = User.objects.all()
+                    visited_by.remove(querry_user.filter(id=userID)[0])
+            found = False
+            
+        return Response(200)
+
+#Vracia kurzy navštevované uživateľom.
+class CoursesForUSer(generics.ListCreateAPIView):
+    Model = Course
+    serializer_class = CourseSerializer
+
+    def get_queryset(self):
+        queryset= Course.objects.all()
+        queryset2 = []
+        userID = self.request.query_params.get('user_id')
+        print(userID)
+        found = False
+        for course in queryset:
+            visited_by = course.visited_by
+            for user in visited_by.all():
+                if userID == str(user.id):
+                    print(userID)
+                    found = True
+            if found:
+                queryset2.append(course)
+            found = False
+        return queryset2

@@ -22,13 +22,11 @@ from django.conf.urls import *
 from otazky.views import *
 from rest_framework_simplejwt import views as jwt_views
 router = routers.DefaultRouter()
-router.register(r'otazky',views.OtazkaView,'otazka')
-
+#Jednotlivé endpointy na ktoré sa Frontend dotazuje.
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',OtazkaView.as_view(),name='otazka'),
+    path('',HomeView.as_view(),name='otazka'),
     path('courses/',CourseView.as_view(),name='courses'),
-    path('comment/',CommentView.as_view(),name='comment'),
     path('score/',ScoreView.as_view(),name='score'),
     path('comment/querry',CommentsForQuestionView.as_view(),name='comment-specific'),
     path('answer/querry',AnswersForQuestion.as_view(),name='answer-specific'),
@@ -52,4 +50,7 @@ urlpatterns = [
     path('score/entry',ScoreEntry.as_view(),name="score-entry"),
     path('question/specific',QuestionByID.as_view(),name="question-by-id"),
     path('comment/add',NewComment.as_view(),name="add-comment"),
+    path('visited/add',AddUserToCourse.as_view(),name="add-visited"),
+    path('visited/remove',RemoveUserFomCourse.as_view(),name="remove-visited"),
+    path('courses/visited',CoursesForUSer.as_view(),name="courses-visited")
 ]
