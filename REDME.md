@@ -5,5 +5,5 @@ Pre lokálnu inštaláciu backendu aplikácie je potrebné postupovať následov
 4. Je potrebné prejst do adresára `/GaifikaceVUT` a spustit server pomocou príkazu `python manage.py runserver`
 --------------------------------------
 Backend bude v následujúcich 3 mesiacoch bežať aj online na stránke https://gamifikace.lol. Táto stránka poskytuje endpointy ku ktorým pristupuje frontend. Taktiež sa tu nachádza administrátorský mód https://gamifikace.lol/admin. Pristúpit je k nemu možné pomocou týchto prihlasovacích udajov :
--Užívateľské meno : admin
--Heslo : Heslo123123!
+- Užívateľské meno : admin
+- Heslo : Heslo123123!
